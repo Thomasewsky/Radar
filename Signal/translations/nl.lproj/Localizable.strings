@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "Nieuwe berichten";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "Ik heb een back-up gemaakt";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Ga in Signal naar Instellingen → Back-ups en maak een back-up als je dat nog niet hebt gedaan";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "Bewaar je herstelsleutel veilig zodat je op de juiste manier kunt herstellen vanaf de back-up";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Voordat je inlogt bij Radar, zorg dat je een back-up maakt van je gesprekken in Signal:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "Zet je gesprekken over";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "Gemiste oproep van geblokkeerd contact in telefooninstellingen";
 

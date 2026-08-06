@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "Mesaje noi";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "Am finalizat un backup";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "În Signal, mergi la Setări → Backup-uri și creează un backup dacă nu ai făcut-o deja";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "Salvează în siguranță Codul de recuperare pentru a putea restaura corect din backup";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Înainte de a te conecta la Radar, asigură-te că faci un backup al conversațiilor tale în Signal:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "Transferă-ți conversațiile";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "Apel pierdut de la un contact blocat în setările telefonului";
 

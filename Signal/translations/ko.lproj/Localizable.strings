@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "새 메시지";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "백업을 완료했습니다";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Signal에서 설정 → 백업으로 이동하여 아직 백업하지 않았다면 백업을 만드세요";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "백업에서 제대로 복원할 수 있도록 복구 키를 안전하게 보관하세요";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Radar에 로그인하기 전에 Signal에서 대화를 꼭 백업하세요:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "대화 옮기기";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "통화 설정에 차단한 연락처에서 온 부재중 전화가 있습니다.";
 

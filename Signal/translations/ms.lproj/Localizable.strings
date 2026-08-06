@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "Mesej-mesej Baru";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "Saya telah melengkapkan sandaran";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Dalam Signal, pergi ke Tetapan → Sandaran dan buat sandaran jika anda belum berbuat demikian";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "Simpan Kunci pemulihan anda dengan selamat supaya anda dapat memulihkan daripada sandaran dengan betul";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Sebelum log masuk ke Radar, pastikan anda menyandarkan perbualan anda dalam Signal:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "Pindahkan perbualan anda";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "Panggilan terlepas daripada kenalan disekat dalam tetapan telefon";
 

@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "नए मैसेज";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "मैंने बैकअप पूरा कर लिया है";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Signal में, सेटिंग → बैकअप पर जाएँ और अगर अभी तक बैकअप नहीं बनाया है तो एक बैकअप बनाएँ";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "बैकअप से ठीक से रिस्टोर करने के लिए अपनी 'रिकवरी की' को सुरक्षित रूप से सहेजें";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Radar में लॉग इन करने से पहले, Signal में अपनी बातचीत का बैकअप ज़रूर लें:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "अपनी बातचीत ट्रांसफ़र करें";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "फोन सेटिंग्स में ब्लॉक्ड संपर्कों की मिस्ड कॉल";
 

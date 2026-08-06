@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "پیام های جدید";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "نسخهٔ پشتیبان را کامل کردم";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "در Signal به تنظیمات ← نسخه‌های پشتیبان بروید و اگر هنوز نسخهٔ پشتیبان نساخته‌اید، یکی بسازید";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "رمز بازیابی خود را در جای امن نگه دارید تا بتوانید به‌درستی از نسخهٔ پشتیبان بازیابی کنید";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "پیش از ورود به Radar، حتماً از گفتگوهای خود در Signal نسخهٔ پشتیبان تهیه کنید:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "گفتگوهای خود را منتقل کنید";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "تماس از‌دست‌رفته از مخاطب مسدودشده در تنظیمات تلفن";
 

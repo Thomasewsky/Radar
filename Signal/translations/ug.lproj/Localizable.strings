@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "يېڭى ئۇچۇرلار";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "زاپاسلاشنى تاماملىدىم";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Signal دا تەڭشەكلەر ← زاپاسلار غا كىرىپ، تېخى زاپاسلىمىغان بولسىڭىز بىر زاپاس قۇرۇڭ";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "زاپاستىن نورمال ئەسلىگە كەلتۈرەلىشىڭىز ئۈچۈن ئەسلىگە كەلتۈرۈش ئاچقۇچىڭىزنى بىخەتەر ساقلاڭ";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Radar غا كىرىشتىن بۇرۇن، Signal دىكى سۆھبەتلىرىڭىزنى چوقۇم زاپاسلاڭ:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "سۆھبەتلىرىڭىزنى يۆتكەڭ";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "تېلېفون تەڭشىكىدىن توسۇپ قويۇلغان ئالاقىداشلاردىن ئالالمىغان چاقىرىق";
 

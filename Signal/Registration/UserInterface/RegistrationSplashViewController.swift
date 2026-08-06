@@ -229,7 +229,11 @@ public class RegistrationSplashViewController: OWSViewController, OWSNavigationC
         let sheet = RestoreOrTransferPickerController(
             setHasOldDeviceBlock: { [weak self] hasOldDevice in
                 self?.dismiss(animated: true) {
-                    self?.presenter?.setHasOldDevice(hasOldDevice)
+                    if hasOldDevice {
+                        self?.presenter?.setHasOldDevice(true)
+                    } else {
+                        self?.showMigrateFromSignalBackupDisclaimer()
+                    }
                 }
             }, showRelinkingBlock: { [weak self] in
                 self?.dismiss(animated: true) {
@@ -238,6 +242,17 @@ public class RegistrationSplashViewController: OWSViewController, OWSNavigationC
             }
         )
         self.present(sheet, animated: true)
+    }
+
+    private func showMigrateFromSignalBackupDisclaimer() {
+        let disclaimer = MigrateFromSignalBackupDisclaimerViewController(
+            completedBackupBlock: { [weak self] in
+                self?.dismiss(animated: true) {
+                    self?.presenter?.setHasOldDevice(false)
+                }
+            }
+        )
+        present(disclaimer, animated: true)
     }
 }
 
@@ -309,6 +324,139 @@ class RestoreOrTransferPickerController: StackSheetViewController {
             )
             stackView.addArrangedSubview(linkDeviceButton)
         }
+    }
+}
+
+// MARK: - MigrateFromSignalBackupDisclaimerViewController
+
+class MigrateFromSignalBackupDisclaimerViewController: OWSViewController {
+
+    private let completedBackupBlock: () -> Void
+
+    init(completedBackupBlock: @escaping () -> Void) {
+        self.completedBackupBlock = completedBackupBlock
+        super.init()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = .Signal.background
+
+        let iconsView = UIImageView(image: UIImage(named: "migrate-from-signal-icons"))
+        iconsView.contentMode = .scaleAspectFit
+        iconsView.accessibilityIdentifier = "registration.migrateFromSignalBackup.iconsView"
+
+        let titleLabel = UILabel.titleLabelForRegistration(text: OWSLocalizedString(
+            "MIGRATE_FROM_SIGNAL_BACKUP_TITLE",
+            comment: "Title of the view asking the user to back up their Signal conversations before migrating from Signal."
+        ))
+        titleLabel.accessibilityIdentifier = "registration.migrateFromSignalBackup.titleLabel"
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = OWSLocalizedString(
+            "MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE",
+            comment: "Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal."
+        )
+        subtitleLabel.textColor = .Signal.accent
+        subtitleLabel.font = UIFont.dynamicTypeTitle3Clamped.medium()
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.lineBreakMode = .byWordWrapping
+
+        let stepsStack = UIStackView(arrangedSubviews: [
+            Self.stepLabel(number: 1, text: OWSLocalizedString(
+                "MIGRATE_FROM_SIGNAL_BACKUP_STEP_1",
+                comment: "First step of the view asking the user to back up their Signal conversations before migrating from Signal."
+            )),
+            Self.stepLabel(number: 2, text: OWSLocalizedString(
+                "MIGRATE_FROM_SIGNAL_BACKUP_STEP_2",
+                comment: "Second step of the view asking the user to back up their Signal conversations before migrating from Signal."
+            )),
+        ])
+        stepsStack.axis = .vertical
+
+        let completedBackupButton = UIButton(
+            configuration: .largePrimary(title: OWSLocalizedString(
+                "MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON",
+                comment: "Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal."
+            )),
+            primaryAction: UIAction { [weak self] _ in
+                self?.didTapCompletedBackup()
+            }
+        )
+        completedBackupButton.enableMultilineLabel()
+        completedBackupButton.accessibilityIdentifier = "registration.migrateFromSignalBackup.completedBackupButton"
+
+        // Flexible spacers of equal height center the content vertically
+        // between the top of the view and the bottom button.
+        let topSpacer = UIView()
+        topSpacer.setContentHuggingPriority(UILayoutPriority(1), for: .vertical)
+        let bottomSpacer = UIView()
+        bottomSpacer.setContentHuggingPriority(UILayoutPriority(1), for: .vertical)
+
+        let stackView = addStaticContentStackView(arrangedSubviews: [
+            topSpacer,
+            iconsView,
+            titleLabel,
+            subtitleLabel,
+            stepsStack,
+            bottomSpacer,
+            UIStackView.verticalButtonStack(buttons: [ completedBackupButton ], isFullWidthButtons: false),
+        ])
+        stackView.alignment = .center
+        stackView.setCustomSpacing(48, after: iconsView)
+        stackView.setCustomSpacing(32, after: titleLabel)
+        stackView.setCustomSpacing(32, after: subtitleLabel)
+
+        let subtitleWidthConstraint = subtitleLabel.widthAnchor.constraint(equalToConstant: 308)
+        subtitleWidthConstraint.priority = .defaultHigh
+        let stepsWidthConstraint = stepsStack.widthAnchor.constraint(equalToConstant: 308)
+        stepsWidthConstraint.priority = .defaultHigh
+        let buttonWidthConstraint = completedBackupButton.widthAnchor.constraint(equalToConstant: 288)
+        buttonWidthConstraint.priority = .defaultHigh
+
+        NSLayoutConstraint.activate([
+            iconsView.heightAnchor.constraint(equalToConstant: 75),
+            topSpacer.heightAnchor.constraint(equalTo: bottomSpacer.heightAnchor),
+            titleLabel.widthAnchor.constraint(lessThanOrEqualTo: stackView.widthAnchor),
+            subtitleWidthConstraint,
+            subtitleLabel.widthAnchor.constraint(lessThanOrEqualTo: stackView.widthAnchor),
+            stepsWidthConstraint,
+            stepsStack.widthAnchor.constraint(lessThanOrEqualTo: stackView.widthAnchor),
+            buttonWidthConstraint,
+            completedBackupButton.widthAnchor.constraint(lessThanOrEqualTo: stackView.widthAnchor),
+        ])
+    }
+
+    private static func stepLabel(number: Int, text: String) -> UILabel {
+        let markerColumnWidth: CGFloat = 26
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.tabStops = [ NSTextTab(textAlignment: .natural, location: markerColumnWidth) ]
+        paragraphStyle.defaultTabInterval = markerColumnWidth
+        paragraphStyle.headIndent = markerColumnWidth
+
+        let label = UILabel()
+        label.attributedText = NSAttributedString(
+            string: "\(number).\t\(text)",
+            attributes: [
+                .font: UIFont.dynamicTypeBodyClamped.medium(),
+                .foregroundColor: UIColor { traitCollection in
+                    UIColor(white: traitCollection.userInterfaceStyle == .dark ? 1 : 0, alpha: 0.5)
+                },
+                .paragraphStyle: paragraphStyle,
+            ]
+        )
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        return label
+    }
+
+    // MARK: - Events
+
+    private func didTapCompletedBackup() {
+        Logger.info("")
+        completedBackupBlock()
     }
 }
 

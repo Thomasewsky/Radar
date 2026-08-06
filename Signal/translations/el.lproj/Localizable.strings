@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "Νέα μηνύματα";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "Ολοκλήρωσα ένα αντίγραφο ασφαλείας";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "Στο Signal, μεταβείτε στις Ρυθμίσεις → Αντίγραφα ασφαλείας και δημιουργήστε ένα αντίγραφο ασφαλείας αν δεν το έχετε κάνει ήδη";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "Αποθηκεύστε με ασφάλεια το Κλειδί ανάκτησης για να μπορέσετε να κάνετε σωστά επαναφορά από το αντίγραφο ασφαλείας";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "Πριν συνδεθείτε στο Radar, φροντίστε να δημιουργήσετε αντίγραφο ασφαλείας των συνομιλιών σας στο Signal:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "Μεταφέρετε τις συνομιλίες σας";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "Αναπάντητη κλήση από αποκλεισμένη επαφή στις ρυθμίσεις του τηλεφώνου";
 

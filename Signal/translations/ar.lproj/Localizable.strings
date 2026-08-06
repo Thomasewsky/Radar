@@ -5319,6 +5319,21 @@
 /* Indicator that separates read from unread messages. */
 "MESSAGES_VIEW_UNREAD_INDICATOR" = "رسائل جديدة";
 
+/* Button confirming that the user has completed a Signal backup, on the view asking them to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_COMPLETED_BUTTON" = "لقد أكملتُ النسخ الاحتياطي";
+
+/* First step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_1" = "في Signal، انتقل إلى الإعدادات ← النسخ الاحتياطية وأنشئ نسخة احتياطية إن لم تكن قد فعلت ذلك بعد";
+
+/* Second step of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_STEP_2" = "احفظ مفتاح الاستعادة الخاص بك بشكل آمن لتتمكن من الاستعادة من النسخة الاحتياطية بشكل صحيح";
+
+/* Subtitle of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_SUBTITLE" = "قبل تسجيل الدخول إلى Radar، احرص على النسخ الاحتياطي لمحادثاتك في Signal:";
+
+/* Title of the view asking the user to back up their Signal conversations before migrating from Signal. */
+"MIGRATE_FROM_SIGNAL_BACKUP_TITLE" = "انقل محادثاتك";
+
 /* info message text in conversation view for when a call was dropped because the contact is blocked in iOS settings */
 "MISSED_CALL_BLOCKED_SYSTEM_CONTACT" = "مكالمة فائتة من جهة اتصال محظورة في إعدادات الهاتف";
 
