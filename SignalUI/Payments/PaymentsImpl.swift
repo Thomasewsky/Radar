@@ -753,6 +753,68 @@ extension PaymentsImpl {
         return response
     }
 
+    /// Mints a fresh BOLT11 invoice for the local wallet, paired with the invoice's own
+    /// absolute expiry so callers can re-mint before it lapses.
+    ///
+    /// The invoice is deliberately *amountless* — the Add Funds screen has no amount field, so
+    /// the sender picks what to pay. Our own send path already handles that shape; see the
+    /// `.bolt11Invoice` case in `prepareOutgoingPayment`, which supplies the amount when
+    /// `details.amountMsat == nil`.
+    ///
+    /// `expirySecs` has no documented ceiling in the Spark SDK, so a rejected value falls back
+    /// to the SDK default rather than failing the whole call — otherwise callers lose the invoice
+    /// entirely and silently show something non-payable in its place.
+    public func fetchLightningInvoice(
+        description: String = "",
+        expirySecs: UInt32? = nil
+    ) async throws -> (bolt11: String, expiresAt: Date?) {
+        let sdk = try getBreezSdk()
+
+        let bolt11: String
+        do {
+            bolt11 = try await mintBolt11Invoice(sdk: sdk, description: description, expirySecs: expirySecs)
+        } catch {
+            guard let requested = expirySecs else { throw error }
+            Logger.warn("Breez rejected expirySecs=\(requested); retrying with the SDK default. Error: \(error)")
+            bolt11 = try await mintBolt11Invoice(sdk: sdk, description: description, expirySecs: nil)
+        }
+
+        return (bolt11, await Self.expiry(ofBolt11: bolt11, sdk: sdk))
+    }
+
+    private func mintBolt11Invoice(
+        sdk: BreezSdk,
+        description: String,
+        expirySecs: UInt32?
+    ) async throws -> String {
+        let response = try await sdk.receivePayment(
+            request: ReceivePaymentRequest(
+                paymentMethod: .bolt11Invoice(
+                    description: description,
+                    amountSats: nil,
+                    expirySecs: expirySecs,
+                    paymentHash: nil
+                )
+            )
+        )
+        return response.paymentRequest
+    }
+
+    /// Reads the absolute expiry back off a freshly minted invoice instead of assuming a window
+    /// the SDK never promised. Returns nil when the invoice cannot be parsed, which callers should
+    /// treat as "expiry unknown — do not auto-refresh".
+    private static func expiry(ofBolt11 bolt11: String, sdk: BreezSdk) async -> Date? {
+        do {
+            guard case .bolt11Invoice(let details) = try await sdk.parse(input: bolt11) else {
+                Logger.warn("Minted invoice did not parse as a BOLT11 invoice; expiry unknown.")
+                return nil
+            }
+            return Date(timeIntervalSince1970: TimeInterval(details.timestamp + details.expiry))
+        } catch {
+            Logger.warn("Could not parse minted invoice to read its expiry: \(error)")
+            return nil
+        }
+    }
 
     public func registerUsername(_ username: String) async throws {
         let paymentsState = self.paymentsState

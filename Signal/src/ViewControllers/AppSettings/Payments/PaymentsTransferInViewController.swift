@@ -13,6 +13,11 @@ class PaymentsTransferInViewController: OWSViewController {
     private static let accentBlue = UIColor.ows_accentBlue
     private static let grayFill   = UIColor(red: 120/255, green: 120/255, blue: 128/255, alpha: 0.16)
 
+    // A BOLT11 invoice is single-use and expires, unlike the permanent lightning address, so ask
+    // for a generously long window and re-mint once the current one is nearly spent.
+    private static let invoiceExpirySecs: UInt32 = 24 * 60 * 60
+    private static let invoiceRefreshLeeway: TimeInterval = 60 * 60
+
     private let isOnboarding: Bool
     private let onContinue: (() -> Void)?
 
@@ -32,6 +37,12 @@ class PaymentsTransferInViewController: OWSViewController {
     private var lightningTabButton: UIButton?
     private var onchainTabButton: UIButton?
     private var walletObserver: NSObjectProtocol?
+    private var foregroundObserver: NSObjectProtocol?
+
+    /// Absolute expiry of the invoice currently in the QR, or nil when we are showing the address
+    /// fallback or could not read an expiry — both mean "nothing to refresh".
+    private var lightningInvoiceExpiresAt: Date?
+    private var hasAppeared = false
 
     init(isOnboarding: Bool = false, onContinue: (() -> Void)? = nil) {
         self.isOnboarding = isOnboarding
@@ -42,6 +53,9 @@ class PaymentsTransferInViewController: OWSViewController {
     deinit {
         if let walletObserver {
             NotificationCenter.default.removeObserver(walletObserver)
+        }
+        if let foregroundObserver {
+            NotificationCenter.default.removeObserver(foregroundObserver)
         }
     }
 
@@ -79,11 +93,42 @@ class PaymentsTransferInViewController: OWSViewController {
         ) { [weak self] _ in
             self?.refreshWalletAddressUI()
         }
+
+        // `viewWillAppear` does not fire when the app returns from the background, which is the
+        // main way a QR is left on screen long enough for its invoice to lapse.
+        foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, self.viewIfLoaded?.window != nil else { return }
+            self.refreshLightningInvoiceIfExpiring()
+        }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Skip the first appearance: `buildQRView()` already started generation during
+        // `viewDidLoad`, and running again here would mint a second invoice and discard the first.
+        guard hasAppeared else {
+            hasAppeared = true
+            return
+        }
+        refreshLightningInvoiceIfExpiring()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         SUIEnvironment.shared.paymentsSwiftRef.updateCurrentPaymentBalance()
+    }
+
+    /// Re-mints the invoice once it has expired or is close to it, so a screen returned to after a
+    /// long absence never presents a lapsed, unpayable QR. With the 24h expiry we request this is
+    /// a no-op for ordinary navigation; it only fires after a genuinely long gap.
+    private func refreshLightningInvoiceIfExpiring() {
+        guard selectedNetwork == .lightning, let expiresAt = lightningInvoiceExpiresAt else { return }
+        guard Date() >= expiresAt.addingTimeInterval(-Self.invoiceRefreshLeeway) else { return }
+        generateQR(force: true)
     }
 
     // MARK: - Onboarding layout (main-branch UI)
@@ -300,9 +345,11 @@ class PaymentsTransferInViewController: OWSViewController {
         let lightningAddress = SUIEnvironment.shared.paymentsRef.walletLightningAddress
         let lightningUsername = SUIEnvironment.shared.paymentsImplRef.walletLightningAddressUsername
         let onchainAddressAtStart = onchainAddress
+        let invoiceExpirySecs = Self.invoiceExpirySecs
 
         Task.detached(priority: .userInitiated) { [weak self] in
             let target: String?
+            let invoiceExpiresAt: Date?
             switch networkAtStart {
             case .lightning:
                 let fallback: String? = {
@@ -310,14 +357,31 @@ class PaymentsTransferInViewController: OWSViewController {
                     if let lightningUsername { return "lightning:\(lightningUsername)@radar.cash" }
                     return nil
                 }()
-                if let lightningAddress,
-                   let bolt11 = try? await getBolt11FromLightningAddress(lightningAddress) {
-                    target = "lightning:\(bolt11)"
-                } else {
+                do {
+                    let invoice = try await SUIEnvironment.shared.paymentsImplRef.fetchLightningInvoice(
+                        expirySecs: invoiceExpirySecs
+                    )
+                    // Kept lowercase, as the SDK emits it. Uppercasing would be spec-legal (bech32
+                    // is case-insensitive) and would let the QR encoder use its denser alphanumeric
+                    // mode, but it trades broad scanner compatibility for a cosmetic win: some
+                    // wallets and generic camera apps only match a lowercase `lightning:` scheme.
+                    target = "lightning:\(invoice.bolt11)"
+                    invoiceExpiresAt = invoice.expiresAt
+                } catch {
+                    // This was previously a `try?`, which hid a permanently broken invoice path
+                    // behind a QR that merely looked correct. Keep the fallback, but say so.
+                    Logger.warn("Could not mint a Lightning invoice; falling back to the lightning address QR. Error: \(error)")
                     target = fallback
+                    invoiceExpiresAt = nil
                 }
             case .onchain:
-                target = onchainAddressAtStart
+                // BIP21 `bitcoin:` scheme in the QR payload only, so scanners can offer
+                // any wallet registered for that scheme. The label, Copy and Share all
+                // keep the bare address.
+                target = onchainAddressAtStart.map { address in
+                    address.lowercased().hasPrefix("bitcoin:") ? address : "bitcoin:\(address)"
+                }
+                invoiceExpiresAt = nil
             }
 
             guard let target else {
@@ -330,6 +394,9 @@ class PaymentsTransferInViewController: OWSViewController {
                 guard let self, let container = self.qrContainerView, let qrImage else { return }
                 // Drop result if the user toggled networks while we were generating.
                 guard self.selectedNetwork == networkAtStart else { return }
+                if networkAtStart == .lightning {
+                    self.lightningInvoiceExpiresAt = invoiceExpiresAt
+                }
                 let iv = UIImageView(image: qrImage)
                 iv.layer.magnificationFilter = .nearest
                 iv.layer.minificationFilter = .nearest
@@ -674,42 +741,4 @@ class PaymentsTransferInViewController: OWSViewController {
         guard let address = currentDisplayedAddress() else { return }
         AttachmentSharing.showShareUI(for: address, sender: self)
     }
-}
-
-// MARK: - Lightning address → bolt11 (LNURL-pay)
-
-private struct LNURLPayResponse: Decodable {
-    let callback: String
-    let maxSendable: Int
-    let minSendable: Int
-    let tag: String
-    let metadata: String
-}
-
-private struct LNURLPayCallbackResponse: Decodable {
-    let pr: String
-}
-
-private enum LightningAddressError: Error {
-    case invalidAddress
-    case invalidCallbackURL
-}
-
-fileprivate func getBolt11FromLightningAddress(_ lightningAddress: String, amount: Int = 0) async throws -> String {
-    let parts = lightningAddress.split(separator: "@")
-    guard parts.count == 2 else { throw LightningAddressError.invalidAddress }
-    let name = parts[0]
-    let domain = parts[1]
-    guard let url = URL(string: "https://\(domain)/.well-known/lnurlp/\(name)") else {
-        throw LightningAddressError.invalidAddress
-    }
-
-    let (data, _) = try await URLSession.shared.data(from: url)
-    let response = try JSONDecoder().decode(LNURLPayResponse.self, from: data)
-    guard let callbackURL = URL(string: "\(response.callback)?amount=\(amount)") else {
-        throw LightningAddressError.invalidCallbackURL
-    }
-    let (callbackData, _) = try await URLSession.shared.data(from: callbackURL)
-    let callbackResponse = try JSONDecoder().decode(LNURLPayCallbackResponse.self, from: callbackData)
-    return callbackResponse.pr
 }

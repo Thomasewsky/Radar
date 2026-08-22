@@ -274,18 +274,31 @@ public extension PaymentsFormat {
         transaction: DBReadTransaction,
         type: OWSInteractionType
     ) -> String? {
-        // Formatted Payment Amount
-        guard let formattedAmount = PaymentsFormat.format(picoMob: amount, isShortForm: true) else {
-            return OWSLocalizedString(
-                "PAYMENTS_PREVIEW_TEXT_UNKNOWN",
-                comment: "Payments Preview Text shown in quoted replies, for unknown payments.")
+        // Formatted Payment Amount.
+        //
+        // NOTE: the short form caps at 4 fraction digits, i.e. 10,000-sat resolution in
+        // BTC — it renders a 200 sat payment as "0.0". Use the long form (8 digits, a
+        // full sat), matching the in-chat payment bubble.
+        let isSatoshi = PaymentsDisplayPreferences.shared.isSatoshiEnabled
+        let formattedAmount: String
+        if isSatoshi {
+            formattedAmount = formatSatoshi(amount)
+        } else {
+            guard let bitcoinAmount = PaymentsFormat.format(picoMob: amount, isShortForm: false) else {
+                return OWSLocalizedString(
+                    "PAYMENTS_PREVIEW_TEXT_UNKNOWN",
+                    comment: "Payments Preview Text shown in quoted replies, for unknown payments.")
+            }
+            formattedAmount = bitcoinAmount
         }
 
         // Preview Text
         let template = OWSLocalizedString(
             "PAYMENTS_PREVIEW_TEXT_QUOTED_REPLY",
-            comment: "Payments Preview Text shown in quoted replies, for payments. Embeds {{ Amount sent (number), Currency (e.g. 'MOB') }}")
-        let currencyName = TokenId.MOB.name
+            comment: "Payments Preview Text shown in quoted replies, for payments. Embeds {{ Amount sent (number), Currency (e.g. 'sats') }}")
+        let currencyName = isSatoshi
+            ? PaymentsConstants.satoshiCurrencyIdentifier
+            : PaymentsConstants.bitcoinCurrencyIdentifier
         return String(format: template, formattedAmount, currencyName)
     }
 }
