@@ -13,11 +13,11 @@
 	<key>BuildDetails</key>
 	<dict>
 		<key>DateTime</key>
-		<string>Fri Oct  2 18:47:30 UTC 2026</string>
+		<string>Fri Oct  2 20:57:21 UTC 2026</string>
 		<key>SignalCommit</key>
-		<string>dbd44194707045f73a56c91d7c5f2f2eca80f497 Ring linked devices (iPad) by attaching them to the push relay (#52)</string>
+		<string>6fad85c6ddd7160a67ef34c62c7ac671f9742d17 update app version and breez</string>
 		<key>Timestamp</key>
-		<integer>1790966850</integer>
+		<integer>1790974641</integer>
 		<key>XCodeVersion</key>
 		<string>2600.2660</string>
 	</dict>
