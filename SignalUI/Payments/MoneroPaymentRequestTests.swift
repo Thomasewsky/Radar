@@ -38,18 +38,16 @@ final class MoneroPaymentRequestTests: XCTestCase {
         let notice = MoneroAddressExchange.paymentSent(amount: 100_000_000, network: .stagenet, now: now)
         let body = try notice.body()
         let parsed = try XCTUnwrap(MoneroAddressExchange.parse(body, now: now))
+        let expectedMessage = String(
+            format: MoneroLocalized("Hey, I sent you %@ XMR."),
+            "0.0001"
+        )
 
         XCTAssertEqual(parsed.kind, .paymentSent)
         XCTAssertEqual(parsed.amount, 100_000_000)
         XCTAssertNil(parsed.address)
-        XCTAssertEqual(
-            MoneroChatPaymentMessage.displayText(for: body),
-            "Hey, I sent you 0.0001 XMR."
-        )
-        XCTAssertEqual(
-            MoneroChatPaymentMessage.displayText(for: body, isOutgoing: true),
-            "Hey, I sent you 0.0001 XMR."
-        )
+        XCTAssertEqual(MoneroChatPaymentMessage.displayText(for: body), expectedMessage)
+        XCTAssertEqual(MoneroChatPaymentMessage.displayText(for: body, isOutgoing: true), expectedMessage)
     }
 
     func testWalletAddressExchangeControlMessagesAreNotShownInConversation() throws {
