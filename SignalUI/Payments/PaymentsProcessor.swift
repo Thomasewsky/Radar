@@ -381,6 +381,7 @@ private class PaymentProcessingOperation {
             case let paymentsError as PaymentsError:
                 switch paymentsError {
                 case .notEnabled,
+                     .sdkNotInitialized,
                      .userNotRegisteredOrAppNotReady,
                      .userHasNoPublicAddress,
                      .invalidCurrency,
@@ -439,6 +440,7 @@ private class PaymentProcessingOperation {
         case let paymentsError as PaymentsError:
             switch paymentsError {
             case .notEnabled,
+                 .sdkNotInitialized,
                  .userNotRegisteredOrAppNotReady,
                  .userHasNoPublicAddress,
                  .invalidCurrency,

@@ -46,6 +46,8 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
 
     private let paymentsProcessor: PaymentsProcessor
 
+    public private(set) var isBreezInitializationUnavailable = false
+
     private var onIncommingTransactionNotificationProcessing: NotificationCenter.Observer?
 
     private var onRegistrationStateChange: NotificationCenter.Observer?
@@ -139,11 +141,16 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
 
             tryToReuploadPaymentProfile()
         } catch PaymentsError.notEnabled {
+            isBreezInitializationUnavailable = false
             return
         } catch {
+            isBreezInitializationUnavailable = currentSdk == nil
             Logger.warn("Failed initialize components with error: \(error)")
+            NotificationCenter.default.postOnMainThread(name: Self.currentPaymentBalanceDidChange, object: nil)
             return
         }
+
+        isBreezInitializationUnavailable = false
     }
 
     fileprivate func reloadComponents() async {
@@ -153,8 +160,13 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
         default:
             currentSdk = nil
             currentWalletAddress = nil
+            isBreezInitializationUnavailable = false
             tryToReuploadPaymentProfile()
         }
+    }
+
+    func reconcilePaymentsAfterSDKInitialization() {
+        paymentsReconciliation.reconcileIfNecessary()
     }
 
     private func initializeBreezSdk() async throws {
@@ -364,7 +376,7 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
         }
 
         guard let sdk = currentSdk else {
-            throw OWSAssertionError("Current Breez SDK is not initialized!")
+            throw PaymentsError.sdkNotInitialized
         }
 
         return sdk
@@ -546,6 +558,12 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
 
         Task { @MainActor in
             do {
+                // Payment screens can become visible before a transient SDK startup
+                // failure has recovered. Retry initialization when refreshing so the
+                // balance does not remain stuck in its initial loading state.
+                if currentSdk == nil {
+                    await initializeComponents()
+                }
                 _ = try await _updateCurrentPaymentBalance()
             } catch {
                 let paymentsError = error as? PaymentsError
@@ -553,6 +571,10 @@ public class PaymentsImpl: NSObject, PaymentsSwift {
                     paymentsError == .outdatedClient
                     || paymentsError == .attestationVerificationFailed
                 SSKEnvironment.shared.paymentsHelperRef.setPaymentsVersionOutdated(outdated)
+                if let paymentsError, case .sdkNotInitialized = paymentsError {
+                    Logger.info("Deferring payment balance refresh until the Breez SDK is initialized.")
+                    return
+                }
                 owsFailDebug("Unexpected error: \(error)")
             }
         }
@@ -1626,6 +1648,7 @@ public class PaymentsEventsMainApp: NSObject, PaymentsEvents {
     public func paymentsStateDidChange() {
         Task {
             await SUIEnvironment.shared.paymentsImplRef.reloadComponents()
+            SUIEnvironment.shared.paymentsImplRef.reconcilePaymentsAfterSDKInitialization()
             SUIEnvironment.shared.paymentsImplRef.updateCurrentPaymentBalance()
         }
     }
